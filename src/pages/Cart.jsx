@@ -1,9 +1,13 @@
-import React from "react";
+import React, { useState } from "react";
 import styled from "styled-components";
 import { Navbar, Announcement, Footer } from "../components";
 import AddIcon from "@mui/icons-material/Add";
 import RemoveIcon from "@mui/icons-material/Remove";
+import { useSelector } from "react-redux";
+import StripCheckout from 'react-stripe-checkout';
+// import env from 'react-dotenv';
 
+const KEY = "pk_test_51MQktJSIAirQdLTsgCPnNeUVwxcW4aN3oX3W1R58nadPXy0XmF3IJHEP7QiebbFoupqE479mojW5i7qe3zRXcI8o00Xf36J3Sv"; 
 const Container = styled.div``;
 
 const Wrapper = styled.div`
@@ -127,7 +131,7 @@ const ProductPrice = styled.div`
   font-size: 30px;
   font-weight: 300;
   @media only screen and (max-width: 380px) {
-    margin-bottom: 20px; 
+    margin-bottom: 20px;
   }
 `;
 
@@ -177,6 +181,12 @@ const SummaryButton = styled.button`
 `;
 
 function Cart() {
+  const cart = useSelector((state) => state.cart);
+  const [token, setToken] = useState(null)
+  const onToken = (token) => {
+    setToken(token); 
+  }
+  console.log(token)
   return (
     <Container>
       <Navbar />
@@ -189,67 +199,57 @@ function Cart() {
             <TopText>Shopping Bag(2)</TopText>
             <TopText>Your Wishlish(0)</TopText>
           </TopTexts>
+          <StripCheckout
+              name="ShoppingKart"
+              image=""
+              billingAddress
+              shippingAddress
+              description={`Your total is ${cart.total}`}
+              amount={cart.total * 100}
+              token={onToken}
+              stripeKey={KEY}
+            >
           <TopButton type="filled">CHECKOUT NOW</TopButton>
+          </StripCheckout>
         </Top>
         <Bottom>
           <Info>
-            <Product>
-              <ProductDetail>
-                <Image src="https://images.pexels.com/photos/90946/pexels-photo-90946.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1" />
-                <Details>
-                  <ProductName>
-                    <b>Product: </b>CAMERA
-                  </ProductName>
-                  <ProductId>
-                    <b>ID: </b>9333988988
-                  </ProductId>
-                  <ProductColor color="black" />
-                  <ProductSize>
-                    <b>Size: </b>37.5
-                  </ProductSize>
-                </Details>
-              </ProductDetail>
-              <PriceDetail>
-                <ProductAmountContainer>
-                  <RemoveIcon />
-                  <ProductAmount>2</ProductAmount>
-                  <AddIcon />
-                </ProductAmountContainer>
-                <ProductPrice>Rs. 300</ProductPrice>
-              </PriceDetail>
-            </Product>
-            <Hr />
-            <Product>
-              <ProductDetail>
-                <Image src="https://images.pexels.com/photos/90946/pexels-photo-90946.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1" />
-                <Details>
-                  <ProductName>
-                    <b>Product: </b>CAMERA
-                  </ProductName>
-                  <ProductId>
-                    <b>ID: </b>9333988988
-                  </ProductId>
-                  <ProductColor color="black" />
-                  <ProductSize>
-                    <b>Size: </b>37.5
-                  </ProductSize>
-                </Details>
-              </ProductDetail>
-              <PriceDetail>
-                <ProductAmountContainer>
-                  <RemoveIcon />
-                  <ProductAmount>2</ProductAmount>
-                  <AddIcon />
-                </ProductAmountContainer>
-                <ProductPrice>Rs. 300</ProductPrice>
-              </PriceDetail>
-            </Product>
+            {cart.products.map((product) => (
+              <>
+                <Product>
+                  <ProductDetail>
+                    <Image src={product.img} />
+                    <Details>
+                      <ProductName>
+                        <b>Product:  </b>{product.title}
+                      </ProductName>
+                      <ProductId>
+                        <b>ID: </b>{product.id}
+                      </ProductId>
+                      <ProductColor color={product.color} />
+                      <ProductSize>
+                        <b>Size: </b>{product.size}
+                      </ProductSize>
+                    </Details>
+                  </ProductDetail>
+                  <PriceDetail>
+                    <ProductAmountContainer>
+                      <RemoveIcon />
+                      <ProductAmount>{product.quantity}</ProductAmount>
+                      <AddIcon />
+                    </ProductAmountContainer>
+                    <ProductPrice>Rs. {product.price * product.quantity}</ProductPrice>
+                  </PriceDetail>
+                </Product>
+                <Hr />
+              </>
+            ))}
           </Info>
           <Summary>
             <SummaryTitle>ORDER SUMMARY</SummaryTitle>
             <SummaryItem>
               <SummaryItemText>Subtotal: </SummaryItemText>
-              <SummaryItemPrice> Rs.600</SummaryItemPrice>
+              <SummaryItemPrice> Rs.{cart.total}</SummaryItemPrice>
             </SummaryItem>
             <SummaryItem>
               <SummaryItemText>Estimated Shipping: </SummaryItemText>
@@ -261,9 +261,22 @@ function Cart() {
             </SummaryItem>
             <SummaryItem type="total">
               <SummaryItemText>Total: </SummaryItemText>
-              <SummaryItemPrice>Rs. 600</SummaryItemPrice>
+              <SummaryItemPrice>{cart.total}</SummaryItemPrice>
             </SummaryItem>
+            <StripCheckout
+              name="ShoppingKart"
+              image=""
+              billingAddress
+              shippingAddress
+              description={`Your total is ${cart.total}`}
+              amount={cart.total * 100}
+              token={onToken}
+              stripeKey={KEY}
+            >
             <SummaryButton>CHECKOUT NOW</SummaryButton>
+
+            </StripCheckout>
+            
           </Summary>
         </Bottom>
       </Wrapper>
