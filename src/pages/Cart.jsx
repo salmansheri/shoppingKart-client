@@ -1,13 +1,15 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import styled from "styled-components";
 import { Navbar, Announcement, Footer } from "../components";
 import AddIcon from "@mui/icons-material/Add";
 import RemoveIcon from "@mui/icons-material/Remove";
 import { useSelector } from "react-redux";
-import StripCheckout from 'react-stripe-checkout';
-// import env from 'react-dotenv';
+import StripCheckout from "react-stripe-checkout";
+import { userRequest } from "../api";
+import { useNavigate } from "react-router-dom"// import env from 'react-dotenv';
 
-const KEY = "pk_test_51MQktJSIAirQdLTsgCPnNeUVwxcW4aN3oX3W1R58nadPXy0XmF3IJHEP7QiebbFoupqE479mojW5i7qe3zRXcI8o00Xf36J3Sv"; 
+const KEY =
+  "pk_test_51MQktJSIAirQdLTsgCPnNeUVwxcW4aN3oX3W1R58nadPXy0XmF3IJHEP7QiebbFoupqE479mojW5i7qe3zRXcI8o00Xf36J3Sv";
 const Container = styled.div``;
 
 const Wrapper = styled.div`
@@ -182,11 +184,24 @@ const SummaryButton = styled.button`
 
 function Cart() {
   const cart = useSelector((state) => state.cart);
-  const [token, setToken] = useState(null)
+  const [token, setToken] = useState(null);
   const onToken = (token) => {
-    setToken(token); 
-  }
-  console.log(token)
+    setToken(token);
+  };
+  const navigate = useNavigate();
+  useEffect(() => {
+    const makeRequest = async (req, res) => {
+      try {
+        const res = await userRequest.post("/checkout/payment", {
+          tokenId: token,
+          amount: cart.total * 100,
+        });
+        navigate.push("/success", { data: res.data });
+        console.log(res.data);
+      } catch (err) {}
+    };
+    token && makeRequest();
+  }, [token, cart.total, navigate]);
   return (
     <Container>
       <Navbar />
@@ -200,16 +215,15 @@ function Cart() {
             <TopText>Your Wishlish(0)</TopText>
           </TopTexts>
           <StripCheckout
-              name="ShoppingKart"
-              image=""
-              billingAddress
-              shippingAddress
-              description={`Your total is ${cart.total}`}
-              amount={cart.total * 100}
-              token={onToken}
-              stripeKey={KEY}
-            >
-          <TopButton type="filled">CHECKOUT NOW</TopButton>
+            name="ShoppingKart"
+            image=""
+            billingAddress
+            shippingAddress
+            description={`Your total is ${cart.total}`}
+            amount={cart.total * 100}
+            token={onToken}
+            stripeKey={KEY}>
+            <TopButton type="filled">CHECKOUT NOW</TopButton>
           </StripCheckout>
         </Top>
         <Bottom>
@@ -221,14 +235,17 @@ function Cart() {
                     <Image src={product.img} />
                     <Details>
                       <ProductName>
-                        <b>Product:  </b>{product.title}
+                        <b>Product: </b>
+                        {product.title}
                       </ProductName>
                       <ProductId>
-                        <b>ID: </b>{product.id}
+                        <b>ID: </b>
+                        {product.id}
                       </ProductId>
                       <ProductColor color={product.color} />
                       <ProductSize>
-                        <b>Size: </b>{product.size}
+                        <b>Size: </b>
+                        {product.size}
                       </ProductSize>
                     </Details>
                   </ProductDetail>
@@ -238,7 +255,9 @@ function Cart() {
                       <ProductAmount>{product.quantity}</ProductAmount>
                       <AddIcon />
                     </ProductAmountContainer>
-                    <ProductPrice>Rs. {product.price * product.quantity}</ProductPrice>
+                    <ProductPrice>
+                      Rs. {product.price * product.quantity}
+                    </ProductPrice>
                   </PriceDetail>
                 </Product>
                 <Hr />
@@ -271,12 +290,9 @@ function Cart() {
               description={`Your total is ${cart.total}`}
               amount={cart.total * 100}
               token={onToken}
-              stripeKey={KEY}
-            >
-            <SummaryButton>CHECKOUT NOW</SummaryButton>
-
+              stripeKey={KEY}>
+              <SummaryButton>CHECKOUT NOW</SummaryButton>
             </StripCheckout>
-            
           </Summary>
         </Bottom>
       </Wrapper>

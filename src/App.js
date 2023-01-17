@@ -1,10 +1,18 @@
 import React from "react";
-import { Home, ProductList, Product, Register, Login, Cart } from "./pages";
+import {
+  Home,
+  ProductList,
+  Product,
+  Register,
+  Login,
+  Cart,
+  Success,
+} from "./pages";
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 
 function App() {
-  const user = true; 
-  
+  // const user = true;
+
   return (
     <Router>
       <Routes>
@@ -14,12 +22,10 @@ function App() {
         <Route path="/product/:id" element={<Product />} />
         <Route path="/cart" element={<Cart />} />
         <Route path="/Login" element={<Login />} />
-          
-        
-        <Route path="/register" element={<Register />} />
-      </Routes>
 
-      
+        <Route path="/register" element={<Register />} />
+        <Route path="/success" element={<Success />} />
+      </Routes>
     </Router>
   );
 }
