@@ -5,7 +5,7 @@ function Success() {
     const location = useLocation();
     console.log(location);
     return(
-        <div>Successfull!</div>
+        <div>Successfull!</div> 
     )
 }
 
